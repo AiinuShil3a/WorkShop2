@@ -1,14 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const RegisterPage = () => {
+  const URL = import.meta.env.VITE_BASE_URL;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
 
-  const handleLogin = () => {
-    console.log("Username:", username);
-    console.log("Password:", password);
-    console.log("Confirmpassword:", confirmpassword);
+  const handleRegister = async(event) => {
+    event.preventDefault();
+    const res = await fetch(`${URL}/register` ,{
+      method:"POST",
+      body: JSON.stringify({username , password}),
+      headers:{"Content-Type":"application/json"},
+    });
+    if(res.status === 200){
+      alert("Successful")
+    }else{
+      alert("Error Something!!!")
+
+    }
   };
 
   return (
@@ -40,7 +50,7 @@ const RegisterPage = () => {
             onChange={(e) => setConfirmpassword(e.target.value)}
           />
 
-          <button type="button" onClick={handleLogin}>
+          <button type="button" onClick={handleRegister}>
             Register
           </button>
         </form>

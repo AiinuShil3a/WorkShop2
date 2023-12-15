@@ -1,16 +1,36 @@
-import React, { useState } from 'react';
+import { useContext, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const URL = import.meta.env.VITE_BASE_URL;
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [redirect, setRedirect] = useState(false);
+  const { setUserInfo } = useContext(UserContext);
 
-  const handleLogin = () => {
-    // Add your login logic here
-    console.log('Username:', username);
-    console.log('Password:', password);
-    // You can integrate authentication logic or API calls as needed
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    const res = await fetch(`${URL}/login`, {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    if (res.ok) {
+      res.json().then((userInfo) => {
+        setUserInfo(userInfo);
+        setRedirect(true);
+      });
+    } else {
+      alert("Error Something!!!");
+    }
   };
 
+  if (redirect) {
+    return <Navigate to={"/"} />;
+  }
+  
   return (
     <div className="login-container">
       <div className="login-form">
