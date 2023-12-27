@@ -1,29 +1,48 @@
+import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
+const URL = import.meta.env.VITE_BASE_URL;
 
 const Post = () => {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(`${URL}/posts`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error fetching posts:", error.message);
+      }
+    };
+    fetchPosts();
+  }, []);
+
   return (
-    <div className='post'>
-      <div className='images'>
-        <Link to='/post-detail'>
-          <img src="https://s.isanook.com/ns/0/ud/1828/9140610/ss(1).jpg?ip/crop/w728h431/q80/webp" alt='' />
-        </Link>
-      </div>
-      <div className='texts'>
-        <Link to='/post-detail'>
-          <h2>ไล่ออกเปลี่ยนชีวิต! "อดีตครูสาว" ผันตัวทำโอนลีแฟนส์ แค่ 6 เดือนกวาดเงินไป 35 ล้าน</h2>
-        </Link>
-        <p className='info'>
-          <a href='https://www.sanook.com/news/9140610/' className='author'>
-            Supphalak
-          </a>
-          <time>12 December 2023 - 18:52</time>
-        </p>
-        <p className='summary'>
-          เดลี สตาร์ สื่อดังแห่งประเทศอังกฤษ เปิดเผยเรื่องราวสุดสยิว 
-          เมื่อมีหญิงสาวรายหนึ่งถูกไล่ออกจากอาชีพคุณครู ก่อนจะหันมาเดินหน้าทำโอนลีแฟนส์ (OnlyFans) 
-          เต็มตัว จนทำรายได้ไปมากถึง 35 ล้านบาทภายในระยะเวลาแค่ครึ่งปีเท่านั้น
-        </p>
-      </div>
+    <div>
+      {posts.map((post) => (
+        <div className='post' key={post._id}>
+          <div className='images'>
+            <Link to={`/post-detail/${post._id}}`}>
+              <img src={`${URL}/${post.cover}`} alt='' />
+            </Link>
+          </div>
+          <div className='texts'>
+            <Link to={`/post-detail/${post._id}}`}>
+              <h2>{post.title}</h2>
+            </Link>
+            <p className='info'>
+              <a href="" className='author'>
+                {post.author.username}
+              </a>
+            </p>
+            <p className='summary'>{post.summary}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

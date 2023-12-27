@@ -5,6 +5,11 @@ const jwt = require("jsonwebtoken");
 const salt = bcrypt.genSaltSync(10);
 const mongoose = require("mongoose");
 const user = require("./models/user");
+const multer = require("multer");
+const uploadMiddleware = multer({ dest: "uploads/" });
+const fs = require("fs")
+const Post = require("./models/post")
+const cookiePaser = require("cookie-parser")
 
 require("dotenv").config();
 
@@ -24,6 +29,7 @@ mongoose
 
 app.use(cors({credentials:true, origin: "http://localhost:5173"}));
 app.use(express.json());
+app.use(cookiePaser());
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
@@ -72,6 +78,43 @@ app.post("/logout", async (req, res) => {
   res.cookie("token", "").json("ok");
 })
 
+app.post("/post",uploadMiddleware.single("file") , async (req,res) => {
+  const {originalname , path} = req.file;
+  const parts = originalname.split(".");
+  const ext = parts[parts.length -1];
+  const newPath = path + "." + ext;
+  fs.renameSync(path,newPath)
+  const {token} = req.cookies;
+  jwt.verify(token, SECRET, async (err, info) => {
+    if(err) throw err;
+    const {title,summary,content} = req.body;
+    const postDoc = await Post.create({
+      title,
+      summary,
+      content,
+      cover:newPath,
+      author:info.id
+    })
+    res.status(201).json(postDoc);
+
+  })
+})
+
+app.get("/posts", async (req, res) => {
+  try {
+    const posts = await Post.find()
+    .populate("author", ["username"])
+    .sort({createdAt: -1})
+    .limit(20)
+    res.json(posts);
+  } catch (error) {
+    console.error("Error retrieving posts:", error.message);
+    res.status(500).json("Internal Server Error");
+  }
+});
+
+app.use("/uploads" , express.static(__dirname + "/uploads"))
+ 
 app.listen(PORTURL, () => {
   console.log("Server is running on http://localhost:" + PORTURL);
 });
