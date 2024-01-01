@@ -113,6 +113,20 @@ app.get("/posts", async (req, res) => {
   }
 });
 
+app.get("/posts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await Post.findById(id)
+    .populate("author", ["username"]);
+    res.json(post);
+  } catch (error) {
+    console.error("Error retrieving posts:", error.message);
+    res.status(500).json("Internal Server Error");
+  }
+});
+
+
+
 app.use("/uploads" , express.static(__dirname + "/uploads"))
  
 app.listen(PORTURL, () => {

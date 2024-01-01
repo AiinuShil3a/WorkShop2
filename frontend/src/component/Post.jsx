@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import { Link } from 'react-router-dom';
 const URL = import.meta.env.VITE_BASE_URL;
 
@@ -26,14 +27,15 @@ const Post = () => {
       {posts.map((post) => (
         <div className='post' key={post._id}>
           <div className='images'>
-            <Link to={`/post-detail/${post._id}}`}>
+            <Link to={`/post-detail/${post._id}`}>
               <img src={`${URL}/${post.cover}`} alt='' />
             </Link>
           </div>
           <div className='texts'>
-            <Link to={`/post-detail/${post._id}}`}>
+            <Link to={`/post-detail/${post._id}`}>
               <h2>{post.title}</h2>
             </Link>
+            <time>{format(new Date(post.createdAt), "dd MMMM yyyy HH:mm")}</time>
             <p className='info'>
               <a href="" className='author'>
                 {post.author.username}
@@ -45,6 +47,5 @@ const Post = () => {
       ))}
     </div>
   );
-};
-
+}; 
 export default Post;

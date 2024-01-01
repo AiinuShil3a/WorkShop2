@@ -1,23 +1,72 @@
-import React from 'react'
+import { useEffect, useState, useContext } from "react";
+import { format } from "date-fns";
+import { useParams, Link } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
+const URL = import.meta.env.VITE_BASE_URL;
 
 const PostPage = () => {
-  return (
-    <div className='post-page'>
-          <h2>ไล่ออกเปลี่ยนชีวิต! "อดีตครูสาว" ผันตัวทำโอนลีแฟนส์ แค่ 6 เดือนกวาดเงินไป 35 ล้าน</h2>
-          <time>12 December 2023 - 18:52</time>
-          <div className='author'>
-            By @Supphalak
-          </div>
-          <div className='images'>
-              <img src="https://s.isanook.com/ns/0/ud/1828/9140610/ss(1).jpg?ip/crop/w728h431/q80/webp" alt='' />
-          </div>
-          <p className='summary'>
-            เดลี สตาร์ สื่อดังแห่งประเทศอังกฤษ เปิดเผยเรื่องราวสุดสยิว 
-            เมื่อมีหญิงสาวรายหนึ่งถูกไล่ออกจากอาชีพคุณครู ก่อนจะหันมาเดินหน้าทำโอนลีแฟนส์ (OnlyFans) 
-            เต็มตัว จนทำรายได้ไปมากถึง 35 ล้านบาทภายในระยะเวลาแค่ครึ่งปีเท่านั้น
-          </p>
-    </div>
-  )
-}
+  const [post, setPost] = useState({});
+  const { id } = useParams();
+  const { userInfo } = useContext(UserContext);
 
-export default PostPage
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await fetch(`${URL}/posts/${id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setPost(data);
+      } catch (error) {
+        console.error("Error fetching post:", error.message);
+      }
+    };
+
+    fetchPost();
+  }, [id]);
+
+  // Check if post has been loaded
+  if (!post || !post.title) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="post-page">
+      <h2>{post.title}</h2>
+      {post.createdAt && (
+        <time>{format(new Date(post.createdAt), "dd MMMM yyyy HH:mm")}</time>
+      )}
+      <div className="author">
+        By @{post.author ? post.author.username : ""}
+      </div>
+      <div className="images">
+        <img src={`${URL}/${post.cover}`} alt="" />
+      </div>
+      {userInfo?.id === post.author?._id && (
+        <div className="edit-row">
+          <Link className="edit-btn" to={`/edit/${post.author._id}`}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+              />
+            </svg>
+            Edit This post
+          </Link>
+        </div>
+      )}
+      <p className="summary">{post.summary}</p>
+    </div>
+  );
+};
+
+export default PostPage;
