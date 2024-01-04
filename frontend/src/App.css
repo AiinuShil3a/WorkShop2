@@ -146,3 +146,40 @@ button:hover {
   color: red;
   font-weight: bold;
 }
+
+.edit-row {
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn,
+.delete-btn {
+  margin-right: 10px; /* ปรับขนาดระยะห่างตามที่คุณต้องการ */
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+}
+
+.delete-btn:hover {
+  color: red; /* สีที่คุณต้องการเมื่อ hover */
+}
+
+.edit-btn:hover {
+  color: rgb(255, 166, 0); /* สีที่คุณต้องการเมื่อ hover */
+}
+
+.delete-confirmation {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.delete-confirmation p {
+  margin-bottom: 10px;
+}
+
+.delete-confirmation button {
+  margin-right: 10px;
+}

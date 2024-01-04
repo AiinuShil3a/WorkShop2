@@ -1,13 +1,13 @@
 import {useState} from 'react'
 import Editor from '../component/Editor'
 const baseURL = import.meta.env.VITE_BASE_URL
-import {Navigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 const CreatePage = () => {
+  const navigate = useNavigate();
   const [title,setTitle] = useState("")
   const [summary,setSummary] = useState("")
   const [content,setContent] = useState("")
   const [file,setFile] = useState("")
-  const [redirect,setRedirect] = useState(false)
 
   const createPost = async(e) =>{
     const data =new FormData();
@@ -25,7 +25,7 @@ const CreatePage = () => {
       },
     });
     if(res.ok){
-      setRedirect(true)
+      navigate("/");
     }
   }
 
@@ -34,7 +34,10 @@ const CreatePage = () => {
       <input type="text" name="title" placeholder='Title' onChange={(e)=> setTitle(e.target.value)} />
       <input type="text" name="summary" placeholder='summary' onChange={(e)=> setSummary(e.target.value)}/>
       <input type="file" name="file" id='file' onChange={(e) => setFile(e.target.files)} />
-      <Editor value={content} onChange={setContent} />
+      <Editor
+          value={content}
+          onChange={setContent}
+        />
       <button>Create Post</button>
     </form>
   )
